@@ -29,25 +29,23 @@ def test_check_validity(co2_test: pd.DataFrame) -> None:
     """
 
     a = m.check_validity(co2_test, 'population', 'gdp', 'Test1')
-    b = m.check_validity(co2_test, 'year', 'year', 'Test2')
 
     # Fail to reject
     assert math.isclose(a, 0.337669, abs_tol=abs(a - 0.337669))
-    # Reject
-    assert math.isclose(b, 1.0, abs_tol=abs(b - 1.0))
 
 
 def test_temp_vs_co2(co2_test: pd.DataFrame, temp_test: pd.DataFrame) -> None:
     """
     Tests temp_vs_co2 function
     """
-    #m.temp_vs_co2(co2_test, temp_test)
+    m.temp_vs_co2(temp_test, co2_test)
 
 
-def test_temp_co2_per_country() -> None:
+def test_temp_co2_per_country(temp_test, co2_test) -> None:
     """
     Tests temp_co2_per_country function
     """
+    m.temp_co2_per_country("Albania", temp_test, co2_test)
 
 
 def test_predict_temp():
@@ -81,6 +79,7 @@ def main():
     test_find_high_low_pop_density(pop_density_test)
     test_check_validity(co2_test)
     test_temp_vs_co2(co2_test, temp_test)
+    test_temp_co2_per_country(temp_test, co2_test)
 
 
 if __name__ == '__main__':

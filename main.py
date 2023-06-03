@@ -171,7 +171,7 @@ def plot_continent_emissions(year: int, emissions_df: pd.DataFrame,
                 bbox_inches='tight')
 
 
-def find_high_low_pop_density(pop_density: pd.DataFrame) -> dict[str, str]:
+def find_high_low_pop_density(pop_density: pd.DataFrame) -> "dict[str, str]":
     """
     Given the average population density per entity each year, returns
     a dictionary mapping 10 entities with the overall highest and lowest
@@ -198,7 +198,7 @@ def find_high_low_pop_density(pop_density: pd.DataFrame) -> dict[str, str]:
 
 
 def filter_temp_and_co2(temp_change: pd.DataFrame, co2: pd.DataFrame) -> \
-    tuple[pd.DataFrame, pd.DataFrame]:
+    "tuple[pd.DataFrame, pd.DataFrame]":
     """
     Pares down temp_change dataset to just columns ISO3, Year,
     and Temp Change and co2_emissions dataset to columns
@@ -283,6 +283,7 @@ def check_validity(data: pd.DataFrame, x: str, y: str, title: str) -> float:
     prints Pearson correlation coefficient, significance level, and
     p-value between x and y values. Returns p-value.
     """
+    data = data.loc[:, [x, y]]
     data = data.dropna()
     sig_level = 0.05 / len(data)
     stat_and_p_value = pearsonr(data[x], data[y])
