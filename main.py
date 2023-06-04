@@ -174,7 +174,7 @@ def plot_continent_emissions(year: int, emissions_df: pd.DataFrame,
 def find_high_low_pop_density(pop_density: pd.DataFrame) -> pd.DataFrame:
     """
     Given the average population density per entity each year, returns
-    a dictionary mapping 10 entities with the overall highest and lowest
+    a data frame mapping 10 entities with the overall highest and lowest
     population densities to their ISO code.
     """
     countries = {}
@@ -306,6 +306,26 @@ def check_validity(data: pd.DataFrame, x: str, y: str, title: str) -> float:
     return float(stat_and_p_value[1])
 
 
+def combined_dfs(pop_density, temp_change: pd.DataFrame): 
+    """
+    Merges the population density and temperature change datasets and
+    calls on predict_temperature to predict the temperature changes for
+    the 10 selected countries.
+    """
+    temp_change = temp_change.dropna()
+    temp_change = temp_change.drop(columns=[
+            'ObjectId', 'Country', 'ISO2', 'Indicator',
+            'Unit', 'Source', 'CTS_Code', 'CTS_Name',
+            'CTS_Full_Descriptor'
+    ])
+
+    temp_change = temp_change.rename(columns = {'ISO3':'Code'}, inplace=False)
+
+    result = pd.merge(pop_density, temp_change)
+
+    return result
+
+
 def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
     """
     Given past temperature changes across various regions, predicts changes
@@ -340,26 +360,20 @@ def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
     return rmse_list, prediction_2023
 
 
-def combined_dfs(pop_density, temp_change: pd.DataFrame): 
+def forcasted_temp_2023(pop_density: pd.DataFrame, temp_change: pd.DataFrame) -> float:
     """
-    Merges the population density and temperature change datasets and
-    calls on predict_temperature to predict the temperature changes for
-    the 10 selected countries.
+    Prints the temperature changes and RMS values for each chosen country.
+    Takes in two data frames and returns a float.
     """
-    temp_change = temp_change.dropna()
-    temp_change = temp_change.drop(columns=[
-            'ObjectId', 'Country', 'ISO2', 'Indicator',
-            'Unit', 'Source', 'CTS_Code', 'CTS_Name',
-            'CTS_Full_Descriptor'
-    ])
+    given_countries = find_high_low_pop_density(pop_density)
+    
+    result = combined_dfs(given_countries, temp_change)
+    for country_code in result['Code']:
+        rmse_list, prediction_2023 = predict_temperature(result, country_code)
+        for i, rmse in enumerate(rmse_list):
+            print(country_code, ' ', f'RMSE for split point {0.5 + i * 0.1}: {rmse}')
 
-    temp_change = temp_change.rename(columns = {'ISO3':'Code'}, inplace=False)
-
-    result = pd.merge(pop_density, temp_change)
-    print(result)
-
-    return result
-
+        print('Forecasted temperature change for 2023: ', prediction_2023)
 
 def main():
     countries, pop_density, co2, temp_change, world_pop = \
@@ -369,18 +383,7 @@ def main():
                           'Annual_Surface_Temperature_Change (3).csv',
                           'world_population (1).csv')
     
-    foo = find_high_low_pop_density(pop_density)
-    
-    result = combined_dfs(foo, temp_change)
-    for country_code in result['Code']:
-        rmse_list, prediction_2023 = predict_temperature(result, country_code)
-        for i, rmse in enumerate(rmse_list):
-            print(country_code, ' ', f'RMSE for split point {0.5 + i * 0.1}: {rmse}')
-
-    print('Forecasted temperature change for 2023: ', prediction_2023)
-
-    #find_high_low_pop_density(pop_density)
-
+    forcasted_temp_2023(pop_density, temp_change)
     # pop_density_vs_emissions(2012, 2015, pop_density, co2)
     #high_low = find_high_low_pop_density(pop_density)
     # temp_vs_co2(temp_change, co2)
