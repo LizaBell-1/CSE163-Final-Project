@@ -48,18 +48,26 @@ def test_pop_density_vs_emissions():
     """
     Tests the pop_density_vs_emissions function.
     """
-    
+    pop_density_test = pd.read_csv('pop_density_test.csv')
+    emissions_test = pd.read_csv('co2_test.csv')
+    m.pop_density_vs_emissions(1972, 2021, pop_density_test, emissions_test)
+
 
 def test_pop_density_vs_emissions_country():
     """
     Tests the pop_density_vs_emissions_country function.
     """
-    
+    pop_density_test = pd.read_csv('pop_density_test.csv')
+    emissions_test = pd.read_csv('co2_test.csv')
+    m.pop_density_vs_emissions_country('Hong Kong', 'HKG', 2020, 2021, pop_density_test, emissions_test)
+
 
 def test_plot_continent_emissions():
     """
     Tests the plot_continent_emissions function.
     """
+
+
 def main():
     test_find_high_low_pop_density()
     test_check_validity()
