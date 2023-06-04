@@ -1,6 +1,6 @@
 """
 Effects of Population Density on Global Climate Change Indicators
-CSE163 AB
+CSE163 A
 Create by Elizaveta Bell, Lauren Yan, Miko Kato
 This file contains the functions reading_csv_files,pop_density_vs_emissions,
 pop_density_vs_emissions_country, plot_continent_emissions,
@@ -23,8 +23,7 @@ from scipy.stats import pearsonr
 
 def reading_csv_files(shp_file: str, population_file: str, co2_file: str,
                       temp_change_file: str, world_pop_file: str) -> \
-                      tuple[gpd.GeoDataFrame, pd.DataFrame, pd.DataFrame,
-                            pd.DataFrame]:
+                      "tuple[gpd.GeoDataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]":
     """
     Reads in and filters datasets to relevant data. Returns a tuple of
     filtered dataframes.
@@ -41,6 +40,19 @@ def reading_csv_files(shp_file: str, population_file: str, co2_file: str,
     countries_geo = countries_geo.merge(iso_codes, left_on='ISO',
                                         right_on='ISO2')
     return countries_geo, pop_density, co2, temp_change, world_pop
+
+
+def filter_na(pop_df: pd.DataFrame, emissions_df: pd.DataFrame) -> "pd.DataFrame":
+    # Filtering relevant and missing data
+    emissions_df_filtered = emissions_df.loc[:, ['country', 'year', 'iso_code',
+                                                          'consumption_co2_per_capita']]
+    emissions_df_filtered = emissions_df_filtered.dropna()
+
+    # Merging into one dataframe
+    merged = pop_df.merge(emissions_df_filtered,
+                                   left_on='Code', right_on='iso_code')
+    return merged
+    
 
 
 def pop_density_vs_emissions(year_start: int, year_end: int,
@@ -64,30 +76,30 @@ def pop_density_vs_emissions(year_start: int, year_end: int,
 
     # Finding average population density and total carbon emissions
     pop_mean_co2_total = merged.groupby('Code').aggregate(
-        {'Population density': 'mean', 'co2': 'sum'}
+        {'Population density': 'mean', 'consumption_co2_per_capita': 'sum'}
         )
     pop_mean_co2_total['Population range low'] = \
         (pop_mean_co2_total['Population density']//10)*10
 
     # Making population ranges
     pop_groups = pop_mean_co2_total.groupby(
-        'Population range low').aggregate({'co2': 'sum'})
+        'Population range low').aggregate({'consumption_co2_per_capita': 'mean'})
 
     # Check validity
     pop_groups['Population range low'] = pop_groups.index[:]
-    check_validity(pop_groups, 'Population range low', 'co2',
+    check_validity(pop_groups, 'Population range low', 'consumption_co2_per_capita',
                    'Pop_Density_vs_Emissions')
 
     # Making two plots for low and high population density
-    sns.relplot(data=pop_groups.loc[:500], x='Population range low', y='co2')
+    sns.relplot(data=pop_groups.loc[:400], x='Population range low', y='consumption_co2_per_capita')
     plt.xlabel('Average population density (people per km^2)')
-    plt.ylabel('Total co2 emissions (million tonnes)')
+    plt.ylabel('co2 emissions per capita (million tonnes)')
     plt.title('co2 emissions by population density over years '
               + str(year_start) + ' to ' + str(year_end) + ' (low density)')
     plt.savefig('population_density_vs_emissions' + str(year_start) + '_'
                 + str(year_end) + '_low.png', bbox_inches='tight')
-    sns.relplot(data=pop_groups.loc[510:1700],
-                x='Population range low', y='co2')
+    sns.relplot(data=pop_groups.loc[410:1700],
+                x='Population range low', y='consumption_co2_per_capita')
     plt.xlabel('Average Population Density (people per km^2)')
     plt.ylabel('Total CO2 Emissions (million tonnes)')
     plt.title('CO2 Emissions by Population Density Between '
@@ -101,10 +113,8 @@ def pop_density_vs_emissions_country(country: str, code: str,
                                      pop_df: pd.DataFrame,
                                      emissions_df: pd.DataFrame) -> None:
     """
-    For a dictionary of the 10 countries and iso codes with the 5
-    highest and 5 lowest population densities and range of years,
-    creates a scatter plot of the change in carbon dioxide emissions
-    versus population density for each country.
+    For a given country, creates a scatter plot of the change in carbon
+    dioxide emissions versus population density.
     """
     # Selecting country
     pop_valid_country = (pop_df['Code'] == code)
@@ -113,16 +123,17 @@ def pop_density_vs_emissions_country(country: str, code: str,
     emissions_df_filtered = emissions_df[emissions_valid_country]
 
     # Selecting year
-    pop_valid_year = (pop_df['Year'] >= year_start) \
-                      & (pop_df['Year'] <= year_end)
-    pop_df_filtered = pop_df[pop_valid_year]
-    emissions_valid_years = (emissions_df['year'] >= year_start) \
-                             & (emissions_df['year'] <= year_end)
-    emissions_df_filtered = emissions_df[emissions_valid_years]
-
+    pop_valid_year = (pop_df_filtered['Year'] >= year_start) \
+                      & (pop_df_filtered['Year'] <= year_end)
+    pop_df_filtered = pop_df_filtered[pop_valid_year]
+    emissions_valid_years = (emissions_df_filtered['year'] >= year_start) \
+                             & (emissions_df_filtered['year'] <= year_end)
+    emissions_df_filtered = emissions_df_filtered[emissions_valid_years]
+    
     # Merging into one dataframe
     merged = pop_df_filtered.merge(emissions_df_filtered,
                                    left_on='Year', right_on='year')
+<<<<<<< HEAD
 
     # Check validity
     check_validity(merged, 'Population density', 'co2', 'pop_density_vs_emissions_country')
@@ -132,6 +143,20 @@ def pop_density_vs_emissions_country(country: str, code: str,
     plt.ylabel('CO2 Emissions (million tonnes)')
     plt.title('CO2 Emissions Versus Population Density in ' + country +
               ' Over Years ' + str(year_start) + ' to ' + str(year_end))
+=======
+    
+    # Check validity
+    # merged['Population density'] = merged.index[:]
+    # check_validity(merged, 'Population density', 'consumption_co2_per_capita',
+                   # 'Pop_Density_vs_Emissions_Country')
+    
+    # Plot
+    sns.relplot(data=merged, x='Population density', y='consumption_co2_per_capita')
+    plt.xlabel('Population density (people per km^2)')
+    plt.ylabel('Co2 emissions per capita (million tonnes)')
+    plt.title('co2 emissions versus population density in ' + country +
+              ' over years ' + str(year_start) + ' to ' + str(year_end))
+>>>>>>> 74d55b5 (making pop density vs emissions plots)
     plt.savefig('population_density_vs_emissions_' + country + '_' +
                 str(year_start) + '_' + str(year_end) + '.png',
                 bbox_inches='tight')
@@ -154,7 +179,7 @@ def plot_continent_emissions(year: int, emissions_df: pd.DataFrame,
 
     # Filtering and merging dataframes
     emissions_df_filtered = emissions_df_filtered.loc[
-        :, ['year', 'iso_code', 'co2']
+        :, ['year', 'iso_code', 'consumption_co2_per_capita']
         ]
     world_population_filtered = world_df.loc[:, ['CCA3', 'Continent']]
     merged_1 = pop_df_filtered.merge(emissions_df_filtered,
@@ -162,7 +187,7 @@ def plot_continent_emissions(year: int, emissions_df: pd.DataFrame,
     merged_2 = merged_1.merge(world_population_filtered,
                               left_on='Code', right_on='CCA3')
     merged = geo_df.merge(merged_2, left_on='ISO3', right_on='Code')
-    merged_filtered = merged.loc[:, ['Population density', 'co2',
+    merged_filtered = merged.loc[:, ['Population density', 'consumption_co2_per_capita',
                                      'Continent', 'geometry']]
 
     # Dissolving data by continent
@@ -173,12 +198,41 @@ def plot_continent_emissions(year: int, emissions_df: pd.DataFrame,
     geometry = continent_groups['geometry']
     fig, ax = plt.subplots(1)
     geometry.plot(ax=ax, color='#EEEEEE')
-    continent_groups.plot(ax=ax, column='co2', legend=True)
+    continent_groups.plot(ax=ax, column='consumption_co2_per_capita', legend=True)
     plt.title(str(year) + ' Carbon Dioxide Emissions \n by Continent (Tonnes)')
     plt.savefig('continent_emissions_' + str(year) + '.png',
                 bbox_inches='tight')
 
 
+<<<<<<< HEAD
+=======
+def find_high_low_pop_density(pop_density: pd.DataFrame) -> "dict[str, str]":
+    """
+    Given the average population density per entity each year, returns
+    a dictionary mapping 10 entities with the overall highest and lowest
+    population densities to their ISO code.
+    """
+    countries = {}
+    #filter to desired year range
+    in_years = pop_density[(pop_density['Year'] >= 1961) &
+                           (pop_density['Year'] <= 2022)]
+    # calculate mean and sort
+    mean_per_country = in_years.groupby(
+        ['Entity', 'Code'])['Population density'].mean()
+    sort_by_density = mean_per_country.sort_values()
+    # select top 5 and bottom 5
+    low = sort_by_density.index[:5].tolist()
+    high = sort_by_density.index[-5:].tolist()
+    # combine into one series
+    low_high = low + high
+    # transfer to dict format
+    for country, code in low_high:
+        countries[country] = code
+
+    return countries
+
+
+>>>>>>> 74d55b5 (making pop density vs emissions plots)
 def filter_temp_and_co2(temp_change: pd.DataFrame, co2: pd.DataFrame) -> \
     "tuple[pd.DataFrame, pd.DataFrame]":
     """
@@ -415,6 +469,7 @@ def forcasted_temp_2023(pop_density: pd.DataFrame, temp_change: pd.DataFrame) ->
 
 def main():
     countries, pop_density, co2, temp_change, world_pop = \
+<<<<<<< HEAD
         reading_csv_files('World_Countries__Generalized_.shp',
                           'population-density (1).csv',
                           'owid-co2-data (3).csv',
@@ -431,6 +486,30 @@ def main():
     #plot_continent_emissions(2013, co2, pop_density, world_pop, countries)
     #pop_density_vs_emissions_country('Afghanistan', 'AFG', 2014, 2015, pop_density, co2)
     #temp_co2_per_country('Argentina', temp_change, co2)
+=======
+        reading_csv_files('/Users/laurenyan/Documents/CSE163-Final-Project/World_Countries__Generalized_.shp',
+                          '/Users/laurenyan/Documents/CSE163-Final-Project/population-density (1).csv',
+                          '/Users/laurenyan/Documents/CSE163-Final-Project/owid-co2-data (3).csv',
+                          '/Users/laurenyan/Documents/CSE163-Final-Project/Annual_Surface_Temperature_Change (3).csv',
+                          '/Users/laurenyan/Documents/CSE163-Final-Project/world_population (1).csv')
+    pop_density_and_co2 = filter_na(pop_density, co2)
+    # rmse_list, prediction_2023 = predict_temperature(temp_change, 'Albania')
+    # for i, rmse in enumerate(rmse_list):
+        #print(f'RMSE for split point {0.5 + i * 0.1}: {rmse}')
+
+    # print('Forecasted temperature change for 2023: ', prediction_2023)
+
+    #pop_density_vs_emissions(2012, 2015, pop_density, co2)
+    #high_low = find_high_low_pop_density(pop_density_and_co2)
+    # temp_vs_co2(temp_change, co2)
+    # predict_temperature(temp_change, countries)
+    #plot_continent_emissions(2013, co2, pop_density, world_pop, countries)
+
+    #for country, code in high_low.items():
+        #pop_density_vs_emissions_country(country, code, 2012, 2015, pop_density, co2)
+
+    # temp_co2_per_country('Argentina', temp_change, co2)
+>>>>>>> 74d55b5 (making pop density vs emissions plots)
 
 
 if __name__ == '__main__':
