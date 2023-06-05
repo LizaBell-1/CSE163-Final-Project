@@ -2,7 +2,11 @@
 Effects of Population Density on Global Climate Change Indicators
 CSE163 AB
 Create by Elizaveta Bell, Lauren Yan, Miko Kato
-This file contains _
+This file contains the functions reading_csv_files,pop_density_vs_emissions,
+pop_density_vs_emissions_country, plot_continent_emissions,
+filter_temp_and_co2, temp_co2_per_country, temp_vs_co2, check_validity,
+find_high_low_pop_density, combined_dfs, predict_temperature, and
+forcasted_temp_2023.
 """
 
 import pandas as pd
@@ -175,37 +179,6 @@ def plot_continent_emissions(year: int, emissions_df: pd.DataFrame,
                 bbox_inches='tight')
 
 
-def find_high_low_pop_density(pop_density: pd.DataFrame) -> pd.DataFrame:
-    """
-    Given the average population density per entity each year, returns
-    a data frame mapping 10 entities with the overall highest and lowest
-    population densities to their ISO code.
-    """
-    countries = {}
-    # filter to desired year range
-    in_years = pop_density[(pop_density['Year'] >= 1961) &
-                           (pop_density['Year'] <= 2022)]
-    # calculate mean and sort
-    mean_per_country = in_years.groupby(
-        ['Entity', 'Code'])['Population density'].mean()
-    sort_by_density = mean_per_country.sort_values()
-    # select top 5 and bottom 5
-    low = sort_by_density.index[:5].tolist()
-    high = sort_by_density.index[-5:].tolist()
-    # combine into one series
-    low_high = low + high
-    # transfer to dict format
-    for country, code in low_high:
-        countries[country] = code
-
-    # turn into series
-    countries = pd.Series(countries, name='Code')
-    countries.index.name = 'Country'
-    countries.reset_index()
-
-    return countries
-
-
 def filter_temp_and_co2(temp_change: pd.DataFrame, co2: pd.DataFrame) -> \
     "tuple[pd.DataFrame, pd.DataFrame]":
     """
@@ -343,7 +316,7 @@ def find_high_low_pop_density(pop_density: pd.DataFrame) -> pd.DataFrame:
     return countries
 
 
-def combined_dfs(pop_density: pd.DataFrame, temp_change: pd.DataFrame): 
+def combined_dfs(pop_density: pd.DataFrame, temp_change: pd.DataFrame) -> pd.DataFrame: 
     """
     Merges the population density and temperature change datasets and
     calls on predict_temperature to predict the temperature changes for
@@ -366,6 +339,7 @@ def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
     """
     Given past temperature changes across various regions, predicts changes
     for a given country in 2023. Takes in a dataframe and the chosen country.
+    Returns a list and a float value.
     """
     #Filter data by selected countries
     is_given_country = temp_change['Code'] == country_code
@@ -373,15 +347,15 @@ def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
     data = country_specific_df.drop(columns=['Code']).T
     data.index = pd.date_range(start='1961', periods=len(data), freq='AS-JAN')
     
+    #Prepare the model
     rmse_list = []
     initial_train_size = 0.5
     step_size = 0.1
-
     split_point = 0.75
-
+    
+    #Utilize the ARIMA model
     train = data[:int(split_point * (len(data)))]
     valid = data[int(split_point * (len(data))):]
-
     history = train.copy()
     predictions = pd.Series(dtype='float64', index=valid.index) 
     rmse_list = []
@@ -425,20 +399,18 @@ def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
     return rmse_list, forecast_2023
 
 
-def forcasted_temp_2023(pop_density: pd.DataFrame, temp_change: pd.DataFrame) -> float:
+def forcasted_temp_2023(pop_density: pd.DataFrame, temp_change: pd.DataFrame) -> None:
     """
     Prints the temperature changes and RMS values for each chosen country.
-    Takes in two data frames and returns a float.
+    Takes in two data frames and returns None.
     """
     given_countries = find_high_low_pop_density(pop_density)
     
+    #Printing the forcasted temperature changes
     result = combined_dfs(given_countries, temp_change)
     for country_code in result['Code']:
         rmse_list, prediction_2023 = predict_temperature(result, country_code)
-        #for i, rmse in enumerate(rmse_list):
-            #print(country_code, ' ', f'RMSE for split point {0.5 + i * 0.1}: {rmse}')
-
-        print('Forecasted temperature change for 2023: ', prediction_2023)
+        print('Forecasted temperature change for ', country_code,  ' 2023: ', prediction_2023)
 
 
 def main():
