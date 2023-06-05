@@ -120,11 +120,14 @@ def pop_density_vs_emissions_country(country: str, code: str,
     merged = pop_df_filtered.merge(emissions_df_filtered,
                                    left_on='Year', right_on='year')
 
-    sns.relplot(data=merged, x='population-density', y='co2')
-    plt.xlabel('Population density (people per km^2)')
-    plt.ylabel('Co2 emissions (million tonnes)')
-    plt.title('co2 emissions versus population density in ' + country +
-              ' over years ' + str(year_start) + ' to ' + str(year_end))
+    # Check validity
+    check_validity(merged, 'Population density', 'co2', 'pop_density_vs_emissions_country')
+
+    sns.relplot(data=merged, x='Population density', y='co2')
+    plt.xlabel('Population Density (people per km^2)')
+    plt.ylabel('CO2 Emissions (million tonnes)')
+    plt.title('CO2 Emissions Versus Population Density in ' + country +
+              ' Over Years ' + str(year_start) + ' to ' + str(year_end))
     plt.savefig('population_density_vs_emissions_' + country + '_' +
                 str(year_start) + '_' + str(year_end) + '.png',
                 bbox_inches='tight')
@@ -303,6 +306,8 @@ def check_validity(data: pd.DataFrame, x: str, y: str, title: str) -> float:
         print('Reject the null hypothesis that correlation = 0')
     else:
         print('Fail to reject the null hypothesis that correlation = 0')
+
+    print()
 
     return float(stat_and_p_value[1])
 
