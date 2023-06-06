@@ -193,7 +193,7 @@ def plot_continent_emissions(year: int, emissions_df: pd.DataFrame,
     geometry.plot(ax=ax, color='#EEEEEE')
     continent_groups.plot(ax=ax, column='consumption_co2_per_capita',
                           legend=True)
-    plt.title(str(year) + ' Carbon Dioxide Emissions \n by Continent (Tonnes)')
+    plt.title(str(year) + ' Carbon Dioxide Emissions \n by Continent (Million Tonnes)')
     plt.savefig('continent_emissions_' + str(year) + '.png',
                 bbox_inches='tight')
 
@@ -445,23 +445,23 @@ def main():
                           'owid-co2-data (3).csv',
                           'Annual_Surface_Temperature_Change (3).csv',
                           'world_population (1).csv')
-    forcasted_temp_2023(pop_density, temp_change)
+    #forcasted_temp_2023(pop_density, temp_change)
     pop_density_and_co2 = filter_na(pop_density, co2)
-    rmse_list, prediction_2023 = predict_temperature(temp_change, 'Albania')
-    for i, rmse in enumerate(rmse_list):
-        print(f'RMSE for split point {0.5 + i * 0.1}: {rmse}')
-    print('Forecasted temperature change for 2023: ', prediction_2023)
-    pop_density_vs_emissions(1990, 2020, pop_density, co2)
-    high_low = find_high_low_pop_density(pop_density_and_co2)
-    temp_vs_co2(temp_change, co2)
-    predict_temperature(temp_change, countries)
+    #rmse_list, prediction_2023 = predict_temperature(temp_change, 'Albania')
+    #for i, rmse in enumerate(rmse_list):
+        #print(f'RMSE for split point {0.5 + i * 0.1}: {rmse}')
+    #print('Forecasted temperature change for 2023: ', prediction_2023)
+    #pop_density_vs_emissions(1990, 2020, pop_density, co2)
+    #high_low = find_high_low_pop_density(pop_density_and_co2)
+    #temp_vs_co2(temp_change, co2)
+    #predict_temperature(temp_change, countries)
     plot_continent_emissions(1990, co2, pop_density, world_pop, countries)
     plot_continent_emissions(2020, co2, pop_density, world_pop, countries)
-    for country, code in high_low.items():
-        pop_density_vs_emissions_country(country, code,
-                                       1990, 2020, pop_density, co2)
+    #for country, code in high_low.items():
+        #pop_density_vs_emissions_country(country, code,
+                                       #1990, 2020, pop_density, co2)
 
-    temp_co2_per_country('Argentina', temp_change, co2)
+    #temp_co2_per_country('Argentina', temp_change, co2)
 
 
 if __name__ == '__main__':
