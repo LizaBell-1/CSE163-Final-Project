@@ -12,8 +12,8 @@ forcasted_temp_2023.
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-from statsmodels.tsa.arima.model import ARIMA
-from sklearn.metrics import mean_squared_error
+#from statsmodels.tsa.arima.model import ARIMA
+#from sklearn.metrics import mean_squared_error
 from math import sqrt
 from matplotlib import pyplot
 import numpy as np
@@ -92,7 +92,7 @@ def pop_density_vs_emissions(year_start: int, year_end: int,
                    'consumption_co2_per_capita', 'Pop_Density_vs_Emissions')
 
     # Making two plots for low and high population density
-    sns.relplot(data=pop_groups.loc[:400], x='Population range low',
+    sns.relplot(data=pop_groups.loc[:300], x='Population range low',
                 y='consumption_co2_per_capita')
     plt.xlabel('Average population density (people per km^2)')
     plt.ylabel('co2 emissions per capita (million tonnes)')
@@ -100,11 +100,11 @@ def pop_density_vs_emissions(year_start: int, year_end: int,
               + str(year_start) + ' to ' + str(year_end) + ' (low density)')
     plt.savefig('population_density_vs_emissions' + str(year_start) + '_'
                 + str(year_end) + '_low.png', bbox_inches='tight')
-    sns.relplot(data=pop_groups.loc[410:1700],
+    sns.relplot(data=pop_groups.loc[310:1700],
                 x='Population range low', y='consumption_co2_per_capita')
     plt.xlabel('Average Population Density (people per km^2)')
     plt.ylabel('Total CO2 Emissions (million tonnes)')
-    plt.title('CO2 Emissions by Population Density Between '
+    plt.title('co2 emissions by population density over years '
               + str(year_start) + ' to ' + str(year_end) + ' (high density)')
     plt.savefig('population_density_vs_emissions' + str(year_start) + '_'
                 + str(year_end) + '_high.png', bbox_inches='tight')
@@ -233,6 +233,8 @@ def find_high_low_pop_density(pop_density: pd.DataFrame) -> "dict[str, str]":
     # select top 5 and bottom 5
     low = sort_by_density.index[:5].tolist()
     high = sort_by_density.index[-5:].tolist()
+    print(low)
+    print(high)
     # combine into one series
     low_high = low + high
     # transfer to dict format
@@ -518,15 +520,15 @@ def main():
 
     # print('Forecasted temperature change for 2023: ', prediction_2023)
 
-    # pop_density_vs_emissions(2012, 2015, pop_density, co2)
+    # pop_density_vs_emissions(1990, 2020, pop_density, co2)
     # high_low = find_high_low_pop_density(pop_density_and_co2)
     # temp_vs_co2(temp_change, co2)
     # predict_temperature(temp_change, countries)
-    # plot_continent_emissions(2013, co2, pop_density, world_pop, countries)
-
+    # plot_continent_emissions(1990, co2, pop_density, world_pop, countries)
+    # plot_continent_emissions(2020, co2, pop_density, world_pop, countries)
     # for country, code in high_low.items():
     #   pop_density_vs_emissions_country(country, code,
-    #                                    2012, 2015, pop_density, co2)
+    #                                    1990, 2020, pop_density, co2)
 
     # temp_co2_per_country('Argentina', temp_change, co2)
 >>>>>>> 74d55b5 (making pop density vs emissions plots)
