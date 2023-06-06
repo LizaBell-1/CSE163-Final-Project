@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import mean_squared_error
 from math import sqrt
-import numpy as np
 import geopandas as gpd
 from scipy.stats import pearsonr
 
@@ -107,7 +106,7 @@ def pop_density_vs_emissions(year_start: int, year_end: int,
               + str(year_start) + ' to ' + str(year_end) + ' (high density)')
     plt.savefig('population_density_vs_emissions' + str(year_start) + '_'
                 + str(year_end) + '_high.png', bbox_inches='tight')
-    
+
     plt.close()
 
 
@@ -195,7 +194,8 @@ def plot_continent_emissions(year: int, emissions_df: pd.DataFrame,
     geometry.plot(ax=ax, color='#EEEEEE')
     continent_groups.plot(ax=ax, column='consumption_co2_per_capita',
                           legend=True)
-    plt.title(str(year) + ' Carbon Dioxide Emissions \n by Continent (Million Tonnes)')
+    plt.title(str(year) +
+              ' Carbon Dioxide Emissions \n by Continent (Million Tonnes)')
     plt.savefig('continent_emissions_' + str(year) + '.png',
                 bbox_inches='tight')
 
@@ -340,9 +340,8 @@ def check_validity(data: pd.DataFrame, x: str, y: str, title: str) -> float:
     return float(stat_and_p_value[1])
 
 
-
 def combined_dfs(pop_density: pd.DataFrame,
-                 temp_change: pd.DataFrame) -> pd.DataFrame: 
+                 temp_change: pd.DataFrame) -> pd.DataFrame:
     """
     Merges the population density and temperature change datasets and
     calls on predict_temperature to predict the temperature changes for
@@ -373,16 +372,16 @@ def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
     country_specific_df = temp_change[is_given_country]
     data = country_specific_df.drop(columns=['Code']).T
     data.index = pd.date_range(start='1961', periods=len(data), freq='AS-JAN')
-    
+
     # Prepare the model
     rmse_list = []
     split_point = 0.75
-    
-    #Utilize the ARIMA model
+
+    # Utilize the ARIMA model
     train = data[:int(split_point * (len(data)))]
     valid = data[int(split_point * (len(data))):]
     history = train.copy()
-    predictions = pd.Series(dtype='float64', index=valid.index) 
+    predictions = pd.Series(dtype='float64', index=valid.index)
     rmse_list = []
     for i in range(len(valid)):
         model = ARIMA(history, order=(5, 1, 0))
@@ -390,22 +389,25 @@ def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
 
         prediction = model_fit.forecast()
         prediction_temp = prediction[0]
-        predictions.iloc[i] = prediction_temp  # Assign prediction to corresponding index
+        # Assign prediction to corresponding index
+        predictions.iloc[i] = prediction_temp
 
         actual_temp = valid.iloc[i].to_frame().T
         history = pd.concat([history, actual_temp])
-        history.index = pd.date_range(start='1961', periods=len(history), freq='AS-JAN')
+        history.index = pd.date_range(start='1961',
+                                      periods=len(history), freq='AS-JAN')
 
         residual = sqrt(mean_squared_error(actual_temp, prediction))
         rmse_list.append(residual)
 
     model = ARIMA(data, order=(5, 1, 0))
     model_fit = model.fit()
-    forecast_2023 = model_fit.forecast(steps=1) 
-    forecast_2023_adj = pd.Series(forecast_2023[0], index=[pd.to_datetime('2023-01-01')])
+    forecast_2023 = model_fit.forecast(steps=1)
+    forecast_2023_adj = pd.Series(forecast_2023[0],
+                                  index=[pd.to_datetime('2023-01-01')])
     predictions = pd.concat([predictions, forecast_2023_adj])
-    
-    #Plot the predicted vs actual training values
+
+    # Plot the predicted vs actual training values
     plt.figure(figsize=(10, 6))
     plt.plot(data, label='Train')
     plt.plot(predictions, label='Predictions', color='red')
@@ -422,22 +424,25 @@ def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
     plt.legend()
     plt.savefig(f'{country_code}_RMSE.png')
     plt.close()
-    
+
     return rmse_list, forecast_2023
 
 
-def forcasted_temp_2023(pop_density: pd.DataFrame, temp_change: pd.DataFrame) -> None:
+def forcasted_temp_2023(pop_density: pd.DataFrame,
+                        temp_change: pd.DataFrame) -> None:
     """
     Prints the temperature changes and RMS values for each chosen country.
     Takes in two data frames and returns None.
     """
     given_countries = find_high_low_pop_density(pop_density)
-    
-    #Printing the forcasted temperature changes
+
+    # Printing the forcasted temperature changes
     result = combined_dfs(given_countries, temp_change)
     for country_code in result['Code']:
-        rmse_list, prediction_2023 = predict_temperature(result, country_code)
-        print('Forecasted temperature change for ', country_code,  ' 2023: ', prediction_2023)
+        rmse_list, prediction_2023 = predict_temperature(result,
+                                                         country_code)
+        print('Forecasted temperature change for ', country_code,  ' 2023: ',
+              prediction_2023)
 
 
 def main():
@@ -447,7 +452,7 @@ def main():
                           'owid-co2-data (3).csv',
                           'Annual_Surface_Temperature_Change (3).csv',
                           'world_population (1).csv')
-    
+
     forcasted_temp_2023(pop_density, temp_change)
     pop_density_and_co2 = filter_na(pop_density, co2)
 
