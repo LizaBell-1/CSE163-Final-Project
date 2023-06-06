@@ -12,10 +12,9 @@ forcasted_temp_2023.
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-#from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.arima.model import ARIMA
 from sklearn.metrics import mean_squared_error
 from math import sqrt
-from matplotlib import pyplot
 import numpy as np
 import geopandas as gpd
 from scipy.stats import pearsonr
@@ -108,6 +107,8 @@ def pop_density_vs_emissions(year_start: int, year_end: int,
               + str(year_start) + ' to ' + str(year_end) + ' (high density)')
     plt.savefig('population_density_vs_emissions' + str(year_start) + '_'
                 + str(year_end) + '_high.png', bbox_inches='tight')
+    
+    plt.close()
 
 
 def pop_density_vs_emissions_country(country: str, code: str,
@@ -152,6 +153,7 @@ def pop_density_vs_emissions_country(country: str, code: str,
     plt.savefig('population_density_vs_emissions_' + country + '_' +
                 str(year_start) + '_' + str(year_end) + '.png',
                 bbox_inches='tight')
+    plt.close()
 
 
 def plot_continent_emissions(year: int, emissions_df: pd.DataFrame,
@@ -279,6 +281,7 @@ def temp_co2_per_country(country: str, temp_change: pd.DataFrame,
     ax2.set_ylabel('Consumption CO2 per Capita (tonnes/person)', size=16)
 
     plt.savefig('temp_co2_per_country.png')
+    plt.close()
 
 
 def temp_vs_co2(temp_change: pd.DataFrame,
@@ -308,6 +311,7 @@ def temp_vs_co2(temp_change: pd.DataFrame,
     plt.ylabel('Average Surface Temperature Change (Degrees Celsius)')
     plt.title('Average Surface Temperature Change vs. CO2 Emissions', size=10)
     plt.savefig('temp_vs_co2.png', bbox_inches='tight')
+    plt.close()
 
 
 def check_validity(data: pd.DataFrame, x: str, y: str, title: str) -> float:
@@ -372,8 +376,6 @@ def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
     
     # Prepare the model
     rmse_list = []
-    initial_train_size = 0.5
-    step_size = 0.1
     split_point = 0.75
     
     #Utilize the ARIMA model
@@ -404,20 +406,22 @@ def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
     predictions = pd.concat([predictions, forecast_2023_adj])
     
     #Plot the predicted vs actual training values
-    pyplot.figure(figsize=(10, 6))
-    pyplot.plot(data, label='Train')
-    pyplot.plot(predictions, label='Predictions', color='red')
-    pyplot.title(f'Country {country_code}')
-    pyplot.legend()
+    plt.figure(figsize=(10, 6))
+    plt.plot(data, label='Train')
+    plt.plot(predictions, label='Predictions', color='red')
+    plt.title(f'Country {country_code}')
+    plt.legend()
     plt.savefig(f'{country_code}_prediction.png')
+    plt.close()
 
-    #Plot the RMSE values per country
+    # Plot the RMSE values per country
     rmse_series = pd.Series(rmse_list, index=valid.index)
-    pyplot.figure(figsize=(10, 6))
-    pyplot.plot(rmse_series, label='RMSE', color='blue')
-    pyplot.title(f'RMSE for Country {country_code}')
-    pyplot.legend()
+    plt.figure(figsize=(10, 6))
+    plt.plot(rmse_series, label='RMSE', color='blue')
+    plt.title(f'RMSE for Country {country_code}')
+    plt.legend()
     plt.savefig(f'{country_code}_RMSE.png')
+    plt.close()
     
     return rmse_list, forecast_2023
 
@@ -443,18 +447,15 @@ def main():
                           'owid-co2-data (3).csv',
                           'Annual_Surface_Temperature_Change (3).csv',
                           'world_population (1).csv')
-    #forcasted_temp_2023(pop_density, temp_change)
+    
+    forcasted_temp_2023(pop_density, temp_change)
     pop_density_and_co2 = filter_na(pop_density, co2)
-    #rmse_list, prediction_2023 = predict_temperature(temp_change, 'Albania')
-    #for i, rmse in enumerate(rmse_list):
-        #print(f'RMSE for split point {0.5 + i * 0.1}: {rmse}')
-    #print('Forecasted temperature change for 2023: ', prediction_2023)
-    #pop_density_vs_emissions(1990, 2020, pop_density, co2)
+
+    pop_density_vs_emissions(1990, 2020, pop_density, co2)
     high_low = find_high_low_pop_density(pop_density_and_co2)
-    #temp_vs_co2(temp_change, co2)
-    #predict_temperature(temp_change, countries)
-    #plot_continent_emissions(1990, co2, pop_density, world_pop, countries)
-    #plot_continent_emissions(2020, co2, pop_density, world_pop, countries)
+    temp_vs_co2(temp_change, co2)
+    plot_continent_emissions(1990, co2, pop_density, world_pop, countries)
+    plot_continent_emissions(2020, co2, pop_density, world_pop, countries)
     high_low_dict = {}
     for country in high_low.index.values.tolist():
         for code in high_low.tolist():
