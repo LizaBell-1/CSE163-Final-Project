@@ -466,8 +466,8 @@ def main():
     for country in high_low['Country'].tolist():
         for code in high_low['Code'].tolist():
             high_low_dict[country] = code
-    #for country, code in high_low_dict.items():
-        #pop_density_vs_emissions_country(country, code,
+    for country, code in high_low_dict.items():
+        pop_density_vs_emissions_country(country, code,
                                        #1990, 2020, pop_density, co2)
 
     #temp_co2_per_country('Argentina', temp_change, co2)
