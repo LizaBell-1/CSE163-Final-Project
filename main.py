@@ -214,8 +214,6 @@ def plot_continent_emissions(year: int, emissions_df: pd.DataFrame,
                 bbox_inches='tight')
 
 
-<<<<<<< HEAD
-=======
 def find_high_low_pop_density(pop_density: pd.DataFrame) -> "dict[str, str]":
     """
     Given the average population density per entity each year, returns
@@ -244,7 +242,6 @@ def find_high_low_pop_density(pop_density: pd.DataFrame) -> "dict[str, str]":
     return countries
 
 
->>>>>>> 74d55b5 (making pop density vs emissions plots)
 def filter_temp_and_co2(temp_change: pd.DataFrame, co2: pd.DataFrame) -> \
         "tuple[pd.DataFrame, pd.DataFrame]":
     """
@@ -483,43 +480,17 @@ def forcasted_temp_2023(pop_density: pd.DataFrame, temp_change: pd.DataFrame) ->
 
 def main():
     countries, pop_density, co2, temp_change, world_pop = \
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 7906617 (fixing flake8 quality)
         reading_csv_files('World_Countries__Generalized_.shp',
                           'population-density (1).csv',
                           'owid-co2-data (3).csv',
                           'Annual_Surface_Temperature_Change (3).csv',
                           'world_population (1).csv')
-<<<<<<< HEAD
-    
-    forcasted_temp_2023(pop_density, temp_change)
-
-    #print(find_high_low_pop_density(pop_density))
-    #pop_density_vs_emissions(2012, 2015, pop_density, co2)
-    #high_low = find_high_low_pop_density(pop_density)
-    #temp_vs_co2(temp_change, co2)
-    #predict_temperature(temp_change, countries)
-    #plot_continent_emissions(2013, co2, pop_density, world_pop, countries)
-    #pop_density_vs_emissions_country('Afghanistan', 'AFG', 2014, 2015, pop_density, co2)
-    #temp_co2_per_country('Argentina', temp_change, co2)
-=======
-        reading_csv_files('/Users/laurenyan/Documents/CSE163-Final-Project/World_Countries__Generalized_.shp',
-                          '/Users/laurenyan/Documents/CSE163-Final-Project/population-density (1).csv',
-                          '/Users/laurenyan/Documents/CSE163-Final-Project/owid-co2-data (3).csv',
-                          '/Users/laurenyan/Documents/CSE163-Final-Project/Annual_Surface_Temperature_Change (3).csv',
-                          '/Users/laurenyan/Documents/CSE163-Final-Project/world_population (1).csv')
+    # forcasted_temp_2023(pop_density, temp_change)
     pop_density_and_co2 = filter_na(pop_density, co2)
-=======
-    # pop_density_and_co2 = filter_na(pop_density, co2)
->>>>>>> 7906617 (fixing flake8 quality)
     # rmse_list, prediction_2023 = predict_temperature(temp_change, 'Albania')
     # for i, rmse in enumerate(rmse_list):
     #   print(f'RMSE for split point {0.5 + i * 0.1}: {rmse}')
-
     # print('Forecasted temperature change for 2023: ', prediction_2023)
-
     # pop_density_vs_emissions(1990, 2020, pop_density, co2)
     # high_low = find_high_low_pop_density(pop_density_and_co2)
     # temp_vs_co2(temp_change, co2)
@@ -531,7 +502,6 @@ def main():
     #                                    1990, 2020, pop_density, co2)
 
     # temp_co2_per_country('Argentina', temp_change, co2)
->>>>>>> 74d55b5 (making pop density vs emissions plots)
 
 
 if __name__ == '__main__':

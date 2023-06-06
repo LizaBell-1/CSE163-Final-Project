@@ -68,7 +68,11 @@ def test_plot_continent_emissions():
     """
     Tests the plot_continent_emissions function.
     """
-
+    pop_density_test = pd.read_csv('pop_density_test.csv')
+    emissions_test = pd.read_csv('co2_test.csv')
+    world_pop = pd.read_csv('world_population (1).csv')
+    countries = gpd.read_file('World_Countries__Generalized_.shp')
+    m.plot_continent_emissions(2020, emissions_test, pop_density_test, world_pop, countries)
 
 def main():
     test_find_high_low_pop_density()
