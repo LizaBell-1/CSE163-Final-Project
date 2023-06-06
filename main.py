@@ -458,8 +458,9 @@ def main():
     plot_continent_emissions(1990, co2, pop_density, world_pop, countries)
     plot_continent_emissions(2020, co2, pop_density, world_pop, countries)
     high_low_dict = {}
-    for country, code in high_low:
-        high_low_dict[country] = code
+    for country in high_low['Country'].tolist():
+        for code in high_low['Code'].tolist():
+            high_low_dict[country] = code
     #for country, code in high_low_dict.items():
         #pop_density_vs_emissions_country(country, code,
                                        #1990, 2020, pop_density, co2)
