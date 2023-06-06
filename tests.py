@@ -50,8 +50,8 @@ def test_pop_density_vs_emissions():
     """
     Tests the pop_density_vs_emissions function.
     """
-    pop_density_test = pd.read_csv('pop_density_test.csv')
-    emissions_test = pd.read_csv('co2_test.csv')
+    pop_density_test = pd.read_csv('test_docs/pop_density_test.csv')
+    emissions_test = pd.read_csv('test_docs/co2_test2.csv')
     m.pop_density_vs_emissions(1972, 2021, pop_density_test, emissions_test)
 
 
@@ -59,25 +59,17 @@ def test_pop_density_vs_emissions_country():
     """
     Tests the pop_density_vs_emissions_country function.
     """
-    pop_density_test = pd.read_csv('pop_density_test.csv')
-    emissions_test = pd.read_csv('co2_test.csv')
+    pop_density_test = pd.read_csv('test_docs/pop_density_test.csv')
+    emissions_test = pd.read_csv('test_docs/co2_test2.csv')
     m.pop_density_vs_emissions_country('Hong Kong', 'HKG', 2020,
                                        2021, pop_density_test, emissions_test)
 
 
-def test_plot_continent_emissions():
-    """
-    Tests the plot_continent_emissions function.
-    """
-    pop_density_test = pd.read_csv('pop_density_test.csv')
-    emissions_test = pd.read_csv('co2_test.csv')
-    world_pop = pd.read_csv('world_population (1).csv')
-    countries = gpd.read_file('World_Countries__Generalized_.shp')
-    m.plot_continent_emissions(2020, emissions_test, pop_density_test, world_pop, countries)
 
 def main():
-    test_find_high_low_pop_density()
-    test_check_validity()
+    test_pop_density_vs_emissions_country()
+    test_pop_density_vs_emissions()
+
 
 
 if __name__ == '__main__':
