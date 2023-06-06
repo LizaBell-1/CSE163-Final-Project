@@ -225,7 +225,6 @@ def find_high_low_pop_density(pop_density: pd.DataFrame) -> pd.DataFrame:
     countries = pd.Series(countries, name='Code')
     countries.index.name = 'Country'
     countries.reset_index()
-
     return countries
 
 
@@ -336,12 +335,6 @@ def check_validity(data: pd.DataFrame, x: str, y: str, title: str) -> float:
 
     return float(stat_and_p_value[1])
 
-    # turn into series
-    countries = pd.Series(countries, name='Code')
-    countries.index.name = 'Country'
-    countries.reset_index()
-
-    return countries
 
 
 def combined_dfs(pop_density: pd.DataFrame,
@@ -460,15 +453,15 @@ def main():
     high_low = find_high_low_pop_density(pop_density_and_co2)
     #temp_vs_co2(temp_change, co2)
     #predict_temperature(temp_change, countries)
-    plot_continent_emissions(1990, co2, pop_density, world_pop, countries)
-    plot_continent_emissions(2020, co2, pop_density, world_pop, countries)
+    #plot_continent_emissions(1990, co2, pop_density, world_pop, countries)
+    #plot_continent_emissions(2020, co2, pop_density, world_pop, countries)
     high_low_dict = {}
-    for country in high_low['Country'].tolist():
-        for code in high_low['Code'].tolist():
+    for country in high_low.index.values.tolist():
+        for code in high_low.tolist():
             high_low_dict[country] = code
     for country, code in high_low_dict.items():
         pop_density_vs_emissions_country(country, code,
-                                       #1990, 2020, pop_density, co2)
+                                         1990, 2020, pop_density, co2)
 
     #temp_co2_per_country('Argentina', temp_change, co2)
 
