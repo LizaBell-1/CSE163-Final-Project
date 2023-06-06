@@ -8,6 +8,7 @@ This file contains the test cases for main.py.
 import main as m
 import pandas as pd
 import math
+import geopandas as gpd
 
 
 def test_find_high_low_pop_density() -> None:
