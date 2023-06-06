@@ -464,7 +464,7 @@ def main():
         pop_density_vs_emissions_country(country, code,
                                          1990, 2020, pop_density, co2)
 
-    #temp_co2_per_country('Argentina', temp_change, co2)
+    temp_co2_per_country('Argentina', temp_change, co2)
 
 
 if __name__ == '__main__':
