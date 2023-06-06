@@ -12,8 +12,8 @@ forcasted_temp_2023.
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-#from statsmodels.tsa.arima.model import ARIMA
-#from sklearn.metrics import mean_squared_error
+from statsmodels.tsa.arima.model import ARIMA
+from sklearn.metrics import mean_squared_error
 from math import sqrt
 from matplotlib import pyplot
 import numpy as np
@@ -135,27 +135,12 @@ def pop_density_vs_emissions_country(country: str, code: str,
     # Merging into one dataframe
     merged = pop_df_filtered.merge(emissions_df_filtered,
                                    left_on='Year', right_on='year')
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-    # Check validity
-    check_validity(merged, 'Population density', 'co2', 'pop_density_vs_emissions_country')
 
     sns.relplot(data=merged, x='Population density', y='co2')
     plt.xlabel('Population Density (people per km^2)')
     plt.ylabel('CO2 Emissions (million tonnes)')
     plt.title('CO2 Emissions Versus Population Density in ' + country +
               ' Over Years ' + str(year_start) + ' to ' + str(year_end))
-=======
-    
-=======
-
->>>>>>> 7906617 (fixing flake8 quality)
-    # Check validity
-    # merged['Population density'] = merged.index[:]
-    # check_validity(merged, 'Population density',
-    #                'consumption_co2_per_capita',
-    #                'Pop_Density_vs_Emissions_Country')
 
     # Plot
     sns.relplot(data=merged, x='Population density',
@@ -164,7 +149,6 @@ def pop_density_vs_emissions_country(country: str, code: str,
     plt.ylabel('Co2 emissions per capita (million tonnes)')
     plt.title('co2 emissions versus population density in ' + country +
               ' over years ' + str(year_start) + ' to ' + str(year_end))
->>>>>>> 74d55b5 (making pop density vs emissions plots)
     plt.savefig('population_density_vs_emissions_' + country + '_' +
                 str(year_start) + '_' + str(year_end) + '.png',
                 bbox_inches='tight')
@@ -231,8 +215,6 @@ def find_high_low_pop_density(pop_density: pd.DataFrame) -> "dict[str, str]":
     # select top 5 and bottom 5
     low = sort_by_density.index[:5].tolist()
     high = sort_by_density.index[-5:].tolist()
-    print(low)
-    print(high)
     # combine into one series
     low_high = low + high
     # transfer to dict format
@@ -349,30 +331,6 @@ def check_validity(data: pd.DataFrame, x: str, y: str, title: str) -> float:
 
     return float(stat_and_p_value[1])
 
-
-def find_high_low_pop_density(pop_density: pd.DataFrame) -> pd.DataFrame:
-    """
-    Given the average population density per entity each year, returns
-    a data frame mapping 10 entities with the overall highest and lowest
-    population densities to their ISO code.
-    """
-    countries = {}
-    # filter to desired year range
-    in_years = pop_density[(pop_density['Year'] >= 1961) &
-                           (pop_density['Year'] <= 2022)]
-    # calculate mean and sort
-    mean_per_country = in_years.groupby(
-        ['Entity', 'Code'])['Population density'].mean()
-    sort_by_density = mean_per_country.sort_values()
-    # select top 5 and bottom 5
-    low = sort_by_density.index[:5].tolist()
-    high = sort_by_density.index[-5:].tolist()
-    # combine into one series
-    low_high = low + high
-    # transfer to dict format
-    for country, code in low_high:
-        countries[country] = code
-
     # turn into series
     countries = pd.Series(countries, name='Code')
     countries.index.name = 'Country'
@@ -381,7 +339,8 @@ def find_high_low_pop_density(pop_density: pd.DataFrame) -> pd.DataFrame:
     return countries
 
 
-def combined_dfs(pop_density: pd.DataFrame, temp_change: pd.DataFrame) -> pd.DataFrame: 
+def combined_dfs(pop_density: pd.DataFrame,
+                 temp_change: pd.DataFrame) -> pd.DataFrame: 
     """
     Merges the population density and temperature change datasets and
     calls on predict_temperature to predict the temperature changes for
@@ -394,11 +353,12 @@ def combined_dfs(pop_density: pd.DataFrame, temp_change: pd.DataFrame) -> pd.Dat
             'CTS_Full_Descriptor'
     ])
 
-    temp_change = temp_change.rename(columns = {'ISO3':'Code'}, inplace=False)
+    temp_change = temp_change.rename(columns={'ISO3': 'Code'}, inplace=False)
 
     result = pd.merge(pop_density, temp_change)
 
     return result
+
 
 def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
     """
@@ -406,13 +366,13 @@ def predict_temperature(temp_change: pd.DataFrame, country_code: pd.DataFrame):
     for a given country in 2023. Takes in a dataframe and the chosen country.
     Returns a list and a float value.
     """
-    #Filter data by selected countries
+    # Filter data by selected countries
     is_given_country = temp_change['Code'] == country_code
     country_specific_df = temp_change[is_given_country]
     data = country_specific_df.drop(columns=['Code']).T
     data.index = pd.date_range(start='1961', periods=len(data), freq='AS-JAN')
     
-    #Prepare the model
+    # Prepare the model
     rmse_list = []
     initial_train_size = 0.5
     step_size = 0.1
@@ -485,23 +445,23 @@ def main():
                           'owid-co2-data (3).csv',
                           'Annual_Surface_Temperature_Change (3).csv',
                           'world_population (1).csv')
-    # forcasted_temp_2023(pop_density, temp_change)
+    forcasted_temp_2023(pop_density, temp_change)
     pop_density_and_co2 = filter_na(pop_density, co2)
-    # rmse_list, prediction_2023 = predict_temperature(temp_change, 'Albania')
-    # for i, rmse in enumerate(rmse_list):
-    #   print(f'RMSE for split point {0.5 + i * 0.1}: {rmse}')
-    # print('Forecasted temperature change for 2023: ', prediction_2023)
-    # pop_density_vs_emissions(1990, 2020, pop_density, co2)
-    # high_low = find_high_low_pop_density(pop_density_and_co2)
-    # temp_vs_co2(temp_change, co2)
-    # predict_temperature(temp_change, countries)
-    # plot_continent_emissions(1990, co2, pop_density, world_pop, countries)
-    # plot_continent_emissions(2020, co2, pop_density, world_pop, countries)
-    # for country, code in high_low.items():
-    #   pop_density_vs_emissions_country(country, code,
-    #                                    1990, 2020, pop_density, co2)
+    rmse_list, prediction_2023 = predict_temperature(temp_change, 'Albania')
+    for i, rmse in enumerate(rmse_list):
+        print(f'RMSE for split point {0.5 + i * 0.1}: {rmse}')
+    print('Forecasted temperature change for 2023: ', prediction_2023)
+    pop_density_vs_emissions(1990, 2020, pop_density, co2)
+    high_low = find_high_low_pop_density(pop_density_and_co2)
+    temp_vs_co2(temp_change, co2)
+    predict_temperature(temp_change, countries)
+    plot_continent_emissions(1990, co2, pop_density, world_pop, countries)
+    plot_continent_emissions(2020, co2, pop_density, world_pop, countries)
+    for country, code in high_low.items():
+        pop_density_vs_emissions_country(country, code,
+                                       1990, 2020, pop_density, co2)
 
-    # temp_co2_per_country('Argentina', temp_change, co2)
+    temp_co2_per_country('Argentina', temp_change, co2)
 
 
 if __name__ == '__main__':
