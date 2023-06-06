@@ -198,10 +198,10 @@ def plot_continent_emissions(year: int, emissions_df: pd.DataFrame,
                 bbox_inches='tight')
 
 
-def find_high_low_pop_density(pop_density: pd.DataFrame) -> "dict[str, str]":
+def find_high_low_pop_density(pop_density: pd.DataFrame) -> pd.DataFrame:
     """
     Given the average population density per entity each year, returns
-    a dictionary mapping 10 entities with the overall highest and lowest
+    a data frame mapping 10 entities with the overall highest and lowest
     population densities to their ISO code.
     """
     countries = {}
@@ -220,6 +220,11 @@ def find_high_low_pop_density(pop_density: pd.DataFrame) -> "dict[str, str]":
     # transfer to dict format
     for country, code in low_high:
         countries[country] = code
+
+    # turn into series
+    countries = pd.Series(countries, name='Code')
+    countries.index.name = 'Country'
+    countries.reset_index()
 
     return countries
 
@@ -452,7 +457,7 @@ def main():
         #print(f'RMSE for split point {0.5 + i * 0.1}: {rmse}')
     #print('Forecasted temperature change for 2023: ', prediction_2023)
     #pop_density_vs_emissions(1990, 2020, pop_density, co2)
-    #high_low = find_high_low_pop_density(pop_density_and_co2)
+    high_low = find_high_low_pop_density(pop_density_and_co2)
     #temp_vs_co2(temp_change, co2)
     #predict_temperature(temp_change, countries)
     plot_continent_emissions(1990, co2, pop_density, world_pop, countries)
